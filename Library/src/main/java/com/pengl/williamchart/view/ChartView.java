@@ -47,46 +47,22 @@ public abstract class ChartView extends RelativeLayout {
     private static final int DEFAULT_WIDTH = 200;
     private static final int DEFAULT_HEIGHT = 100;
 
-    /**
-     * 水平和垂直位置控制器
-     */
-    final XRenderer xRndr;
-    final YRenderer yRndr;
+    final XRenderer xRndr;// 水平位置控制器
+    final YRenderer yRndr;// 垂直位置控制器
 
-    /**
-     * Style applied to chart
-     */
-    final Style style;
+    final Style style;// 已应用于图表的样式
+    ArrayList<ChartSet> data;// 用于显示的图表数据
+    private Orientation mOrientation;// 图表的方向
 
-    /**
-     * Chart data to be displayed
-     */
-    ArrayList<ChartSet> data;
+    private int mChartLeft;         // 图表边框（包括填充）
+    private int mChartTop;          // 图表边框（包括填充）
+    private int mChartRight;        // 图表边框（包括填充）
+    private int mChartBottom;       // 图表边框（包括填充）
 
-    /**
-     * Chart orientation
-     */
-    private Orientation mOrientation;
-
-    /**
-     * Chart borders including padding
-     */
-    private int mChartLeft;
-    private int mChartTop;
-    private int mChartRight;
-    private int mChartBottom;
-
-    /**
-     * Threshold line value
-     */
-    private ArrayList<Float> mThresholdStartValues;
-    private ArrayList<Float> mThresholdEndValues;
-
-    /**
-     * Threshold line label
-     */
-    private ArrayList<Integer> mThresholdStartLabels;
-    private ArrayList<Integer> mThresholdEndLabels;
+    private ArrayList<Float> mThresholdStartValues;     // 阈值区域值 - 开始
+    private ArrayList<Float> mThresholdEndValues;       // 阈值区域值 - 结束
+    private ArrayList<Integer> mThresholdStartLabels;   // 阈值区域标签
+    private ArrayList<Integer> mThresholdEndLabels;     // 阈值区域标签
 
     /**
      * Chart data to be displayed
@@ -146,7 +122,7 @@ public abstract class ChartView extends RelativeLayout {
 
             // Set the positioning of the whole chart's frame
             mChartLeft = getPaddingLeft();
-            mChartTop = getPaddingTop() + style.fontMaxHeight / 2;
+            mChartTop = getPaddingTop() + style.fontMaxHeight;// 避免最高点的文字显示不全，加上文字的高度
             mChartRight = getMeasuredWidth() - getPaddingRight();
             mChartBottom = getMeasuredHeight() - getPaddingBottom();
 
@@ -158,8 +134,7 @@ public abstract class ChartView extends RelativeLayout {
 
             // Negotiate chart inner boundaries.
             // Both renderers may require different space to draw axis stuff.
-            final float[] bounds = negotiateInnerChartBounds(yRndr.getInnerChartBounds(),
-                    xRndr.getInnerChartBounds());
+            final float[] bounds = negotiateInnerChartBounds(yRndr.getInnerChartBounds(), xRndr.getInnerChartBounds());
             yRndr.setInnerChartBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
             xRndr.setInnerChartBounds(bounds[0], bounds[1], bounds[2], bounds[3]);
 
@@ -661,7 +636,7 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Draw vertical lines of Grid.
+     * 绘制网格的垂直线
      *
      * @param canvas Canvas to draw on.
      */
@@ -672,8 +647,7 @@ public abstract class ChartView extends RelativeLayout {
         if (style.hasYAxis) marker += offset;
 
         while (marker < getInnerChartRight()) {
-            canvas.drawLine(marker, getInnerChartTop(), marker, getInnerChartBottom(),
-                    style.gridPaint);
+            canvas.drawLine(marker, getInnerChartTop(), marker, getInnerChartBottom(), style.gridPaint);
             marker += offset;
         }
 
@@ -682,7 +656,7 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Draw horizontal lines of Grid.
+     * 绘制网格的水平线
      *
      * @param canvas Canvas to draw on.
      */
@@ -690,8 +664,7 @@ public abstract class ChartView extends RelativeLayout {
         final float offset = (getInnerChartBottom() - getInnerChartTop()) / style.gridRows;
         float marker = getInnerChartTop();
         while (marker < getInnerChartBottom()) {
-            canvas.drawLine(getInnerChartLeft(), marker, getInnerChartRight(), marker,
-                    style.gridPaint);
+            canvas.drawLine(getInnerChartLeft(), marker, getInnerChartRight(), marker, style.gridPaint);
             marker += offset;
         }
 
@@ -885,11 +858,11 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Show/Hide Y labels and respective axis.
+     * 显示/隐藏Y标签和相应的轴。
      *
-     * @param position NONE - No labels
-     *                 OUTSIDE - Labels will be positioned outside the chart
-     *                 INSIDE - Labels will be positioned inside the chart
+     * @param position 无 - 无标签
+     *                 外部 - 标签将位于图表外部
+     *                 内部 - 标签将位于图表内部
      * @return {@link ChartView} self-reference.
      */
     public ChartView setYLabels(@NonNull YRenderer.LabelPosition position) {
@@ -898,11 +871,11 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Show/Hide X labels and respective axis.
+     * 显示/隐藏X标签和相应的轴。
      *
-     * @param position NONE - No labels
-     *                 OUTSIDE - Labels will be positioned outside the chart
-     *                 INSIDE - Labels will be positioned inside the chart
+     * @param position 无 - 无标签
+     *                 外部 - 标签将位于图表外部
+     *                 内部 - 标签将位于图表内部
      * @return {@link ChartView} self-reference.
      */
     public ChartView setXLabels(@NonNull XRenderer.LabelPosition position) {
@@ -922,9 +895,9 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Set color to be used in labels.
+     * 设置标签字体的颜色
      *
-     * @param color Color to be applied to labels
+     * @param color colorInt
      * @return {@link ChartView} self-reference.
      */
     public ChartView setLabelsColor(@ColorInt int color) {
@@ -933,12 +906,12 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Set size of font to be used in labels.
+     * 设置标签字体的大小
      *
-     * @param size Font size to be applied to labels
+     * @param size px
      * @return {@link ChartView} self-reference.
      */
-    public ChartView setFontSize(@IntRange(from = 0) int size) {
+    public ChartView setFontSize(@FloatRange(from = 0) float size) {
         style.fontSize = size;
         return this;
     }
@@ -977,13 +950,12 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * A step is seen as the step to be defined between 2 labels. As an
-     * example a step of 2 with a maxAxisValue of 6 will end up with
-     * {0, 2, 4, 6} as labels.
+     * 步长被视为两个标签之间定义的步长。
+     * 例如，步长为 2 且 maxAxisValue 为 6 的标签最终将为 {0, 2, 4, 6}。
      *
-     * @param minValue The minimum value that Y axis will have as a label
-     * @param maxValue The maximum value that Y axis will have as a label
-     * @param step     (real) value distance from every label
+     * @param minValue Y轴最小值的标签
+     * @param maxValue Y轴最大值的标签
+     * @param step     标签的距离步长
      * @return {@link ChartView} self-reference.
      */
     public ChartView setAxisBorderValues(float minValue, float maxValue, float step) {
@@ -995,8 +967,10 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * @param minValue The minimum value that Y axis will have as a label
-     * @param maxValue The maximum value that Y axis will have as a label
+     * 步长默认按  (max - min) / 3 计算
+     *
+     * @param minValue Y轴最小值的标签
+     * @param maxValue Y轴最大值的标签
      * @return {@link ChartView} self-reference.
      */
     public ChartView setAxisBorderValues(float minValue, float maxValue) {
@@ -1008,9 +982,9 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Define the thickness of the axis.
+     * 轴的粗细
      *
-     * @param thickness size of the thickness
+     * @param thickness px
      * @return {@link ChartView} self-reference.
      */
     public ChartView setAxisThickness(@FloatRange(from = 0.f) float thickness) {
@@ -1019,9 +993,9 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Define the color of the axis.
+     * 轴的颜色
      *
-     * @param color color of the axis
+     * @param color colorInt
      * @return {@link ChartView} self-reference.
      */
     public ChartView setAxisColor(@ColorInt int color) {
@@ -1060,18 +1034,16 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Apply grid to chart.
+     * 使用网格来填充图表
      *
-     * @param rows    Grid's number of rows
-     * @param columns Grid's number of columns
-     * @param paint   The Paint instance that will be used to draw the grid
-     *                If null the grid won't be drawn
+     * @param rows    网络的行数
+     * @param columns 网络的列数
+     * @param paint   用于绘制网格的Paint实例，如果为null，则不会绘制网格
      * @return {@link ChartView} self-reference.
      */
     public ChartView setGrid(@IntRange(from = 0) int rows, @IntRange(from = 0) int columns, @NonNull Paint paint) {
         if (rows < 0 || columns < 0)
             throw new IllegalArgumentException("Number of rows/columns can't be smaller than 0.");
-
         style.gridRows = rows;
         style.gridColumns = columns;
         style.gridPaint = Preconditions.checkNotNull(paint);
@@ -1079,13 +1051,12 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Display a value threshold either in a form of line or band.
-     * In order to produce a line, the start and end value will be equal.
+     * 绘制阈值区域
+     * 如果要绘制一条直线，起始值和结束值相等即可
      *
-     * @param startValue Threshold value.
-     * @param endValue   Threshold value.
-     * @param paint      The Paint instance that will be used to draw the grid
-     *                   If null the grid won't be drawn
+     * @param startValue 起始值
+     * @param endValue   结束值
+     * @param paint      用于绘制阈值线的Paint实例，如果为null，则不会绘制
      * @return {@link ChartView} self-reference.
      */
     public ChartView setValueThreshold(float startValue, float endValue, @NonNull Paint paint) {
@@ -1096,13 +1067,11 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Display a value threshold either in a form of line or band.
-     * In order to produce a line, the start and end value will be equal.
+     * 绘制阈值区域
      *
-     * @param startValues Threshold values.
-     * @param endValues   Threshold values.
-     * @param paint       The Paint instance that will be used to draw the grid
-     *                    If null the grid won't be drawn
+     * @param startValues 起始值
+     * @param endValues   结束值
+     * @param paint       用于绘制阈值线的Paint实例，如果为null，则不会绘制
      * @return {@link ChartView} self-reference.
      */
     public ChartView setValueThreshold(@NonNull float[] startValues, @NonNull float[] endValues, @NonNull Paint paint) {
@@ -1120,13 +1089,11 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Display a label threshold either in a form of line or band.
-     * In order to produce a line, the start and end label will be equal.
+     * 绘制阈值线的label
      *
-     * @param startLabel Threshold start label index.
-     * @param endLabel   Threshold end label index.
-     * @param paint      The Paint instance that will be used to draw the grid
-     *                   If null the grid won't be drawn
+     * @param startLabel 开始的label
+     * @param endLabel   结束的label
+     * @param paint      用于绘制阈值线label的Paint实例，如果为null，则不会绘制
      * @return {@link ChartView} self-reference.
      */
     public ChartView setLabelThreshold(int startLabel, int endLabel, @NonNull Paint paint) {
@@ -1137,13 +1104,11 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Display a label threshold either in a form of line or band.
-     * In order to produce a line, the start and end label will be equal.
+     * 绘制阈值线的label，适用于多段折线
      *
-     * @param startLabels Threshold start label index.
-     * @param endLabels   Threshold end label index.
-     * @param paint       The Paint instance that will be used to draw the grid
-     *                    If null the grid won't be drawn
+     * @param startLabels 开始的label
+     * @param endLabels   结束的label
+     * @param paint       用于绘制阈值线label的Paint实例，如果为null，则不会绘制
      * @return {@link ChartView} self-reference.
      */
     public ChartView setLabelThreshold(@NonNull int[] startLabels, @NonNull int[] endLabels, @NonNull Paint paint) {
@@ -1172,10 +1137,9 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Mandatory horizontal border when necessary (ex: BarCharts)
-     * Sets the attribute depending on the chart's orientation.
-     * e.g. If orientation is VERTICAL it means that this attribute must be handled
-     * by horizontal axis and not the vertical axis.
+     * 必要时强制水平边框（例如：条形图）
+     * 根据图表的方向设置属性。
+     * 例如，如果方向为垂直，则意味着此属性必须由水平轴而不是垂直轴处理。
      */
     void setMandatoryBorderSpacing() {
         if (mOrientation == Orientation.VERTICAL)
@@ -1196,11 +1160,11 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     /**
-     * Manually set chart clickable regions.
-     * Normally the system sets the regions matching the entries position in the screen.
-     * See method defineRegions for more information.
+     * 手动设置图表可点击区域。
+     * 通常系统会设置与屏幕上条目位置相匹配的区域。
+     * 有关更多信息，请参阅方法 defineRegions。
      *
-     * @param regions Clickable regions where touch event will be detected.
+     * @param regions 可点击区域，用于检测触摸事件。
      */
     void setClickableRegions(ArrayList<ArrayList<Region>> regions) {
         mRegions = regions;
@@ -1223,19 +1187,13 @@ public abstract class ChartView extends RelativeLayout {
     }
 
     public enum Orientation {
-        /**
-         * Chart horizontal orientation.
-         */
         HORIZONTAL,
-        /**
-         * Chart vertical orientation.
-         */
         VERTICAL
     }
 
     /**
-     * Class responsible to mStyle the Graph!
-     * Can be instantiated with or without attributes.
+     * 负责对 Graph 进行样式化的类！
+     * 可以实例化，也可以不实例化属性。
      */
     public class Style {
 
@@ -1256,36 +1214,14 @@ public abstract class ChartView extends RelativeLayout {
         private float axisThickness;
         private int axisColor;
 
-        /**
-         * Distance between axis and label
-         */
-        private int axisLabelsSpacing;
+        private int axisLabelsSpacing;// 轴和标签之间的距离
+        private int axisBorderSpacing;// 轴标签和图表边之间的间距
+        private int axisTopSpacing;// 图表顶部和轴标签之间的间距
 
-        /**
-         * Spacing between axis labels and chart sides
-         */
-        private int axisBorderSpacing;
+        private Paint gridPaint;// 背景网络的画笔
+        private Paint labelThresPaint;// 阈值区域 - 标签的画笔
+        private Paint valueThresPaint;// 阈值区域 - 数值的画笔
 
-        /**
-         * Spacing between chart top and axis label
-         */
-        private int axisTopSpacing;
-
-        /**
-         * Grid
-         */
-        private Paint gridPaint;
-
-        /**
-         * Threshold
-         **/
-        private Paint labelThresPaint;
-
-        private Paint valueThresPaint;
-
-        /**
-         * Font
-         */
         private AxisRenderer.LabelPosition xLabelsPositioning;
         private AxisRenderer.LabelPosition yLabelsPositioning;
 
@@ -1294,19 +1230,11 @@ public abstract class ChartView extends RelativeLayout {
         private float fontSize;
         private Typeface typeface;
 
-        /**
-         * Height of the text based on the font mStyle defined.
-         * Includes uppercase height and bottom padding of special
-         * lowercase letter such as g, p, etc.
-         */
-        private int fontMaxHeight;
-        private int gridRows;
-        private int gridColumns;
+        private int fontMaxHeight;// 基于定义的字体样式，取文本的高度
+        private int gridRows;// 网络线的条数
+        private int gridColumns;// 网络线的列数
 
-        /**
-         * Labels Metric to draw together with labels.
-         */
-        private DecimalFormat labelsFormat;
+        private DecimalFormat labelsFormat;// 标签的格式化显示
 
         Style(Context context) {
             axisColor = DEFAULT_COLOR;
@@ -1330,7 +1258,6 @@ public abstract class ChartView extends RelativeLayout {
         }
 
         Style(Context context, AttributeSet attrs) {
-
             TypedArray arr = context.getTheme().obtainStyledAttributes(attrs, R.styleable.ChartAttrs, 0, 0);
 
             hasXAxis = arr.getBoolean(R.styleable.ChartAttrs_chart_axis, true);

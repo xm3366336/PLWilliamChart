@@ -14,8 +14,8 @@ ext {
     compileSdkVersion = 35
     minSdkVersion = 21
     targetSdkVersion = 35
-    versionCode = 2410091
-    versionName = "1.0.1"
+    versionCode = 2410092
+    versionName = "1.0.2"
 }
 
 allprojects {

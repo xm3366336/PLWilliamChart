@@ -457,9 +457,9 @@ public abstract class AxisRenderer {
     }
 
     /**
-     * Set if axis needs mandatory border spacing.
+     * X和Y轴是否需要强制设置边框间距
      *
-     * @param bool True if needs mandatory border spacing, False otherwise.
+     * @param bool 如果需要强制边框间距，则为 True，否则为 False。
      */
     public void setMandatoryBorderSpacing(boolean bool) {
         mandatoryBorderSpacing = (bool) ? 1 : 0;
