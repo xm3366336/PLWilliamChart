@@ -7,5 +7,5 @@
 
 > 1、引入
 ```
-implementation 'com.github.xm3366336:PLWilliamChart:1.0.0'
+implementation 'com.github.xm3366336:PLWilliamChart:1.0.1'
 ```
